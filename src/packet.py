@@ -73,7 +73,7 @@ class TCPSegment(Packet):
         self.__fin = fin
     
     # Todas as flags são colocadas como False inicialmente
-    def __init__(self, srcprt: int=0, dstprt: int=0, seqnum: int=0, acknum: int=0, headersz: int=0, winsz: int=0, chsum: int=0, urgpnt: int=0):
+    def __init__(self, srcprt: int=0, dstprt: int=0, seqnum: int=0, acknum: int=0, headersz: int=0, winsz: int=0, chsum: int=0, urgpnt: int=0, opt: bytearray = bytearray(0)):
         # Source port
         if not self.setSourcePort(srcprt):
             raise ValueError
@@ -99,4 +99,7 @@ class TCPSegment(Packet):
             raise ValueError
         # Urgent pointer
         if not self.setUrgentPointer(urgpnt):
+            raise ValueError
+        # Options
+        if not self.setOptions(opt):
             raise ValueError
