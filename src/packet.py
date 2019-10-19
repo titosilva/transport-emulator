@@ -4,10 +4,12 @@ class Packet(metaclass=abc.ABCMeta):
     __data = None
 
     @abc.abstractmethod
+    def getSize(self)->int:
+        pass
+
     def setData(self, data: bytearray):
         self.__data = data
 
-    @abc.abstractmethod
     def getData(self)->bytes:
         return self.__data
 
@@ -101,3 +103,7 @@ class TCPSegment(Packet):
         # Options
         if not self.setOptions(opt):
             raise ValueError
+
+    # Retorna o tamanho do pacote em bytes
+    def getSize(self):
+        return len(self.__data) + self.__headsz/2
