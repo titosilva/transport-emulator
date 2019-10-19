@@ -66,8 +66,6 @@ class TCPSegment(Packet):
         self.__urg = urg
         self.__ack = ack
         self.__psh = psh
-        self.__syn = syn
-        self.__psh = psh
         self.__rst = rst
         self.__syn = syn
         self.__fin = fin
