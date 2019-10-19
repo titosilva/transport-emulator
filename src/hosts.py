@@ -1,7 +1,17 @@
-from src.packet_handler import *
+from packet_handler import *
 
-class Emitter(PacketHandler):
+# Emitter using Go-Back-N protocol
+class EmitterGBN(PacketHandler):
     pass
 
-class Receiver(PacketHandler):
+# Receiver for Go-Back-N protocol
+class ReceiverGBN(PacketHandler):
+    pass
+
+# Emitter using Selective Repeat protocol
+class EmitterSR(PacketHandler):
+    pass
+
+# Receiver for Selective Repeat protocol
+class ReceiverSR(PacketHandler):
     pass

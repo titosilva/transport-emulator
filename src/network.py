@@ -1,4 +1,4 @@
-from src.packet_handler import *
+from packet_handler import *
 
-class Network(PacketHandler):
+class SimpleNetwork(PacketHandler):
     pass
