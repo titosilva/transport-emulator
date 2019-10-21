@@ -11,7 +11,18 @@ class EmitterGBN(PacketHandler):
         self.__timeout = 0
 
     def run(self):
-        pass
+        packet = None
+        # Verifica se foram recebidos pacotes e faz o processamento
+        while True:
+            try:
+                packet = self.__recvpackets.popleft()
+                
+            except:
+                break
+
+        # Envia pacotes
+        
+
 
 class ReceiverGBN(PacketHandler):
     pass
