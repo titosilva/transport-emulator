@@ -1,17 +1,18 @@
 from packet_handler import *
 
-# Emitter using Go-Back-N protocol
 class EmitterGBN(PacketHandler):
-    pass
-        
-# Receiver for Go-Back-N protocol
+    def __init__(self):
+        # Numero de sequencia e numero de reconhecimento
+        self.__ack = 0
+        self.__seq = 0
+        # Tamanho da janela
+        self.__winsz = 0
+        # Timeout
+        self.__timeout = 0
+
+    def run(self):
+        pass
+
 class ReceiverGBN(PacketHandler):
     pass
 
-# Emitter using Selective Repeat protocol
-class EmitterSR(PacketHandler):
-    pass
-
-# Receiver for Selective Repeat protocol
-class ReceiverSR(PacketHandler):
-    pass

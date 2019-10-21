@@ -1,4 +1,5 @@
 from packet_handler import *
 
 class SimpleNetwork(PacketHandler):
-    pass
+    def __init__(self):
+        pass
