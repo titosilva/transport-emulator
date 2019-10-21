@@ -1,5 +1,5 @@
 from collections import deque
-import packet
+from packet_struct import *
 import abc
 
 class PacketHandler(metaclass=abc.ABCMeta):
@@ -15,7 +15,7 @@ class PacketHandler(metaclass=abc.ABCMeta):
     
     def pop_packet(self, p:Packet)->bool:
         packet = None
-        
+
         try:
             packet = self.__packets.popleft()
         except:
