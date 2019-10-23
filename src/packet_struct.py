@@ -28,9 +28,14 @@ class TCPSegment(Packet):
 
     def setSequenceNumber(self, seqnum: int):
         self.__seqnum = seqnum
+        return True
+
+    def getAcknowledgeNumber(self):
+        return self.__acknum
 
     def setAcknowledgementNumber(self, acknum: int):
         self.__acknum = acknum
+        return True
 
     def setHeaderSize(self, headersz: int):
         if 5 <= headersz <= 15:
@@ -62,7 +67,12 @@ class TCPSegment(Packet):
             self.setHeaderSize(5 + len(options)*2)
             return True
         return False
+
+    def isACK(self):
+        return self.__ack 
         
+    def isSYN(self):
+        return self.__syn
 
     def setFlags(self, urg: bool=False, ack: bool=False, psh: bool=False, rst: bool=False, syn: bool=False, fin: bool=False):
         self.__urg = urg
@@ -73,7 +83,7 @@ class TCPSegment(Packet):
         self.__fin = fin
     
     # Todas as flags são colocadas como False inicialmente
-    def __init__(self, srcprt: int=0, dstprt: int=0, seqnum: int=0, acknum: int=0, headersz: int=0, winsz: int=0, chsum: int=0, urgpnt: int=0, opt: bytearray = bytearray(0)):
+    def __init__(self, srcprt: int=0, dstprt: int=0, seqnum: int=0, acknum: int=0, headersz: int=5, winsz: int=0, chsum: int=0, urgpnt: int=0, opt: bytearray = bytearray(0)):
         # Source port
         if not self.setSourcePort(srcprt):
             raise ValueError
@@ -107,3 +117,11 @@ class TCPSegment(Packet):
     # Retorna o tamanho do pacote em bytes
     def getSize(self):
         return len(self.__data) + self.__headsz/2
+
+class ACK(TCPSegment):
+    def __init__(self, srcprt=0, dstprt=0, seqnum=0, acknum=0, headersz=5, winsz=0, chsum=0, urgpnt=0, opt=bytearray(0)):
+        super().__init__(srcprt=srcprt, dstprt=dstprt, seqnum=seqnum, acknum=acknum, headersz=headersz, winsz=winsz, chsum=chsum, urgpnt=urgpnt, opt=opt)
+        self.setFlags(ack=True)
+
+if __name__ == "__main__":
+    print(ACK())

@@ -12,11 +12,13 @@ class EmitterGBN(PacketHandler):
 
     def run(self):
         packet = None
-        # Verifica se foram recebidos pacotes e faz o processamento
+        # Verifica se foram recebidos pacotes e faz o processamento de cada um deles
         while True:
             try:
                 packet = self.__recvpackets.popleft()
-                
+                if packet.isACK():
+                    if packet.getAcknowledgeNumber() == self.__seq:
+                        pass
             except:
                 break
 
