@@ -14,7 +14,7 @@ class EmulatorGBN(object):
     def __init__(self, rate: float=1.0):
         # Cria a instancia, caso nao exista
         if not EmulatorGBN.emul:
-            EmulatorGBN.emul = EmulatorGBN.__EmulatorGBN
+            EmulatorGBN.emul = EmulatorGBN.__EmulatorGBN()
         # Reseta a instancia, caso exista
         else:
             EmulatorGBN.emul.emitter = None

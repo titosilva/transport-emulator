@@ -3,7 +3,7 @@ from network import *
 import time
 
 class EmitterGBN(PacketHandler):
-    def __init__(self, idstr: str, connection: SimpleConnection):
+    def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
         # Base para a contagem dos pacotes enviados
         self.__base = 0
         # Numero de sequencia e numero de reconhecimento
@@ -19,11 +19,16 @@ class EmitterGBN(PacketHandler):
         self.__timer = time.time()
         # Conexão
         self.setConnection(connection)
-        # idstr
-        self.setID(idstr)
+        # ID da fonte
+        self.setID(srcid)
+        # ID do destino
+        self.setDestID(destid)
 
     def setID(self, idstr: str):
-        self.__id = idstr
+        self.__srcid = idstr
+
+    def setDestID(self, idstr: str):
+        self.__destid = idstr
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
@@ -48,7 +53,7 @@ class EmitterGBN(PacketHandler):
         while True:
             packet = self.get_to_send_packet()
             if packet != None:
-                self.__connection.receive_packet(packet, self.__id)
+                self.__connection.receive_packet(packet, self.__srcid, self.__destid)
             else:
                 break
 

@@ -24,8 +24,9 @@ class PacketHandler(metaclass=abc.ABCMeta):
 
     # Adiciona um pacote à fila de pacotes recebidos
     # Deve ser passado um ID da fonte, chamado srcid, o qual servira para identificar a fonte do pacote
-    def receive_packet(self, p: Packet, srcid: str):
-        self.__recvpackets.append((p,srcid))
+    # Também deve ser passado um id de destinatario
+    def receive_packet(self, p: Packet, srcid: str, destid: str):
+        self.__recvpackets.append((p, srcid, destid))
 
     def getPackets(self)->(deque, deque):
         return (self.__recvpackets, self.__sendpackets)
