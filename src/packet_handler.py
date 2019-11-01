@@ -2,7 +2,10 @@ from collections import deque
 from packet_struct import *
 import abc
 
-class PacketHandler(metaclass=abc.ABCMeta):
+class NetworkEntity(object):
+    pass
+
+class PacketHandler(metaclass=abc.ABCMeta, NetworkEntity):
     def __init__(self):
         # Pacotes recebidos
         self.__recvpackets = deque()

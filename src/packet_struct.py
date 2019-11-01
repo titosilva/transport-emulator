@@ -30,7 +30,7 @@ class TCPSegment(Packet):
         self.__seqnum = seqnum
         return True
 
-    def getAcknowledgeNumber(self):
+    def getAckNumber(self):
         return self.__acknum
 
     def setAcknowledgementNumber(self, acknum: int):
@@ -122,6 +122,4 @@ class ACK(TCPSegment):
     def __init__(self, srcprt=0, dstprt=0, seqnum=0, acknum=0, headersz=5, winsz=0, chsum=0, urgpnt=0, opt=bytearray(0)):
         super().__init__(srcprt=srcprt, dstprt=dstprt, seqnum=seqnum, acknum=acknum, headersz=headersz, winsz=winsz, chsum=chsum, urgpnt=urgpnt, opt=opt)
         self.setFlags(ack=True)
-
-if __name__ == "__main__":
-    print(ACK())
+    
