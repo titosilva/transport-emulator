@@ -7,7 +7,7 @@ class Packet(metaclass=abc.ABCMeta):
     def getSize(self)->int:
         pass
 
-    def setData(self, data: bytearray):
+    def setData(self, data: bytes):
         self.__data = data
 
     def getData(self)->bytes:
