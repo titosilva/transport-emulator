@@ -4,6 +4,9 @@ import time
 
 class EmitterGBN(PacketHandler):
     def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
+        # Invoca o construtor da classe base
+        super().__init__()
+
         # Base para a contagem dos pacotes enviados
         self.__base = 0
         # Numero de sequencia e numero de reconhecimento
@@ -53,7 +56,7 @@ class EmitterGBN(PacketHandler):
         while True:
             try:
                 # Pega um pacote do buffer de recebimento
-                packet = self._recvpackets.popleft()
+                packet = self._recvpackets.popleft()[0]
 
                 # Verifica se o pacote é um ACK
                 if packet.isACK():
@@ -140,7 +143,7 @@ class EmitterGBN(PacketHandler):
         # Gera pacotes a serem enviados (equivalente ao rdt_send)
         # Por simplicidade, a cada ciclo, será gerada uma quantidade de pacotes
         # Igual ao restante da janela que ainda esta disponivel
-        self.__genPackets(self.__winsz - len(self.__sendpackets))
+        self.__genPackets(self.__winsz - len(self._sendpackets))
 
          # Verifica o timeout, se ainda houverem pacotes a serem recebidos
         if self.__wait:
@@ -155,5 +158,64 @@ class EmitterGBN(PacketHandler):
 
 
 class ReceiverGBN(PacketHandler):
-    pass
+    def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
+        # Invoca construtor da classe base
+        super().__init__()
 
+        # Numero de sequencia esperado
+        self.__seq = 0
+
+        # Conexão
+        self.setConnection(connection)
+        # ID da fonte
+        self.setID(srcid)
+        # ID do destino
+        self.setDestID(destid)
+
+    def setID(self, idstr: str):
+        self.__srcid = idstr
+
+    def setDestID(self, idstr: str):
+        self.__destid = idstr
+
+    # Define a conexão por onde serão enviados os pacotes
+    def setConnection(self, connection: SimpleConnection):
+        self.__connection = connection
+
+
+
+    # Analisa os pacotes recebidos
+    def __analyseReceivedPackets(self):
+        while True:
+            try:
+                # Tentamos retirar um pacote da fila de pacotes recebidos
+                packet = self._recvpackets.popleft()[0]
+                
+                # Verifica se o numero de sequencia do pacote é o esperado
+                if packet.getSequenceNumber() == self.__seq:
+                    # Se for, adiciona ACK à fila de pacotes a serem enviados 
+                    # e incrementa o numero de sequencia esperado
+                    self.add_to_send_packet(ACK(acknum=self.__seq))
+                    self.__seq += 1
+                else:
+                    self.add_to_send_packet(ACK(acknum=self.__seq))
+            except:
+                # Quando não há mais pacotes, é lançada uma excessão e a execução do while é finalizada
+                break
+
+    # Função usada para enviar ACK's
+    def __sendPackets(self):
+        while True:
+            try:
+                # Pega um pacote da fila de pacotes a serem enviados
+                packet = self._sendpackets.popleft()
+                
+                # Entrega o pacote a conexão
+                self.__connection.receive_packet((packet, self.__srcid, self.__destid))
+            except:
+                # Quando nao ha mais pacotes, é lançada uma excessão e o while é finalizado
+                break
+
+    def run(self):
+        self.__analyseReceivedPackets()
+        self.__sendPackets()

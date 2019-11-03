@@ -1,5 +1,5 @@
 from hosts import *
-from network import *
+from connection import *
 
 # Usando padrão singleton para garantir que haja apenas uma instância de simulador
 class EmulatorGBN(object):
@@ -12,7 +12,7 @@ class EmulatorGBN(object):
     # Instancia de emulador
     emul = None
     def __init__(self, rate: float=1.0):
-        # Cria a instancia, caso nao exista
+        # Cria a instancia, caso nao exista 
         if not EmulatorGBN.emul:
             EmulatorGBN.emul = EmulatorGBN.__EmulatorGBN()
         # Reseta a instancia, caso exista
