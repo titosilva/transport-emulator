@@ -3,7 +3,7 @@ from packet_struct import *
 import abc
 
 
-# Classe base para todos os hosts
+# Classe base para todos o HostType e para SimpleConnection
 class PacketHandler(metaclass=abc.ABCMeta):
     def __init__(self):
         # Pacotes recebidos
@@ -51,3 +51,22 @@ class PacketHandler(metaclass=abc.ABCMeta):
     # Retorna os buffers para visualização
     def getPackets(self)->(deque, deque):
         return (self._recvpackets, self._sendpackets)
+
+# Classe base para todos os hosts
+class HostType(PacketHandler):
+    def __init__(self, srcid: str, destid: str):
+        # Invoca metodo construtor da classe base
+        super().__init__()
+        # Define o id do host
+        self.setID(srcid)
+        # Define o id de quem é o destinatário dos pacotes
+        self.setDestID(destid)
+
+    def setID(self, idstr: str):
+        self._srcid = idstr
+
+    def getID(self)->str:
+        return self._srcid
+
+    def setDestID(self, idstr: str):
+        self._destid = idstr

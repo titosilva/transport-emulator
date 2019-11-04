@@ -2,10 +2,10 @@ from packet_handler import *
 from connection import *
 import time
 
-class EmitterGBN(PacketHandler):
+class EmitterGBN(HostType):
     def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
         # Invoca o construtor da classe base
-        super().__init__()
+        super().__init__(srcid, destid)
 
         # Base para a contagem dos pacotes enviados
         self.__base = 0
@@ -22,20 +22,11 @@ class EmitterGBN(PacketHandler):
         self.__timer = time.time()
         # Conexão
         self.setConnection(connection)
-        # ID da fonte
-        self.setID(srcid)
-        # ID do destino
-        self.setDestID(destid)
-
-    def setID(self, idstr: str):
-        self.__srcid = idstr
-
-    def setDestID(self, idstr: str):
-        self.__destid = idstr
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
         self.__connection = connection
+        self.__connection.setEmitter(self)
 
     def __setTimeout(self, timeout: float):
         self.__timeout = timeout
@@ -125,7 +116,7 @@ class EmitterGBN(PacketHandler):
             # Envia o pacote
             if packet != None:
                 # Entrega pacotes à conexão, que, por sua vez, os entregará ao destinatário(receiver)
-                self.__connection.receive_packet(packet, self.__srcid, self.__destid)
+                self.__connection.receive_packet(packet, self._srcid, self._destid)
 
                 # Incrementa o numero de sequencia
                 self.__seq += 1
@@ -173,15 +164,15 @@ class ReceiverGBN(PacketHandler):
         self.setDestID(destid)
 
     def setID(self, idstr: str):
-        self.__srcid = idstr
+        self._srcid = idstr
 
     def setDestID(self, idstr: str):
-        self.__destid = idstr
+        self._destid = idstr
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
         self.__connection = connection
-
+        self.__connection.setReceiver(self)
 
 
     # Analisa os pacotes recebidos
@@ -198,6 +189,8 @@ class ReceiverGBN(PacketHandler):
                     self.add_to_send_packet(ACK(acknum=self.__seq))
                     self.__seq += 1
                 else:
+                    # Se nao for o numero de sequencia esperado, apenas reenviada ACK com ultimo numero
+                    # de sequencia recebido corretamente
                     self.add_to_send_packet(ACK(acknum=self.__seq))
             except:
                 # Quando não há mais pacotes, é lançada uma excessão e a execução do while é finalizada
@@ -211,7 +204,7 @@ class ReceiverGBN(PacketHandler):
                 packet = self._sendpackets.popleft()
                 
                 # Entrega o pacote a conexão
-                self.__connection.receive_packet((packet, self.__srcid, self.__destid))
+                self.__connection.receive_packet(packet, self._srcid, self._destid)
             except:
                 # Quando nao ha mais pacotes, é lançada uma excessão e o while é finalizado
                 break
