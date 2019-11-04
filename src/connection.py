@@ -82,7 +82,6 @@ class SimpleConnection(PacketHandler):
                 else:
                     # Caso o numero gerado seja menor que loss,
                     # apenas descarta o pacote
-                    print('lost:' + str(info[0].getSequenceNumber()))
                     pass
             else:
                 break

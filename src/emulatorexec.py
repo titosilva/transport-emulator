@@ -47,7 +47,5 @@ class EmulatorGBN(object):
 
     def run(self):
         self.__emul.emitter.run()
-        self.printState()
         self.__emul.connection.run()
-        self.printState()
         self.__emul.receiver.run()
