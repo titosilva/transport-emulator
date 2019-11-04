@@ -13,6 +13,7 @@ class SimpleConnection(PacketHandler):
         self.__rate = rate
         self.__loss = loss
         self.__times = deque()
+        self.__delay = 0
 
     def setReceiver(self, receiver: HostType):
         self.__receiver = receiver
@@ -22,20 +23,17 @@ class SimpleConnection(PacketHandler):
 
     # Metodo privado que calcula, a partir dos atributos, qual será o atraso
     def __calculateDelay(self):
-        self.__delay = (self._recvpackets[0].getSize()/self.rate) + (self.distance/self.speed)
+        self.__delay = (self._recvpackets[0][0].getSize()/self.__rate) + (self.__distance/self.__speed)
         return self.__delay
 
     def setDistance(self, distance: float):
         self.__distance = distance
-        self.__calculateDelay()
 
     def setSpeed(self, speed: float):
         self.__speed = speed
-        self.__calculateDelay()
 
     def setRate(self, rate: float):
         self.__rate = rate
-        self.__calculateDelay()
 
     def setLoss(self, loss: int)->bool:
         if 0<=loss and loss<=100:
@@ -60,29 +58,34 @@ class SimpleConnection(PacketHandler):
         # Verifica se o tempo de enviar um pacote é chegado
         # O tempo self.__times[0] indica o tempo do pacote mais antigo
         # no buffer de pacotes recebidos
-        if (time.times() - self.__times[0] >= self.__delay):
-            # Obtem uma tuple com as informaçoes sobre o pacote
-            # A partir do buffer de pacotes recebidos
-            info = self._recvpackets.popleft()
+        while len(self._recvpackets)>0:
+            self.__calculateDelay()
+            if time.time() - self.__times[0] >= self.__delay:
+                # Obtem uma tuple com as informaçoes sobre o pacote
+                # A partir do buffer de pacotes recebidos
+                info = self._recvpackets.popleft()
 
-            # Remove o tempo desse pacote da fila de tempos, uma 
-            # vez que esse pacote ou sera perdido ou sera enviado
-            self.__times.popleft()
+                # Remove o tempo desse pacote da fila de tempos, uma 
+                # vez que esse pacote ou sera perdido ou sera enviado
+                self.__times.popleft()
 
-            # Usa um random para determinar se o pacote sera enviado (simular perda de pacotes com probabilidade loss%)
-            if(random([0,100]) <= self.loss):
-                # Verifica quem é o destinatario do pacote e o entrega
-                if info[2] == self.__receiver.getID():
-                    self.__receiver.receive_packet(info[0], info[1], info[2])
-                elif info[2] == self.__emitter.getID():
-                    self.__emitter.receive_packet(info[0], info[1], info[2])
+                # Usa um random para determinar se o pacote sera enviado (simular perda de pacotes com probabilidade loss%)
+                if random.randint(0,100) >= self.__loss:
+                    # Verifica quem é o destinatario do pacote e o entrega
+                    if info[2] == self.__receiver.getID():
+                        self.__receiver.receive_packet(info[0], info[1], info[2])
+                    elif info[2] == self.__emitter.getID():
+                        self.__emitter.receive_packet(info[0], info[1], info[2])
+                    else:
+                        # Se o destinatario é desconhecido, descarta o pacote
+                        pass
                 else:
-                    # Se o destinatario é desconhecido, descarta o pacote
-                    return
+                    # Caso o numero gerado seja menor que loss,
+                    # apenas descarta o pacote
+                    print('lost:' + str(info[0].getSequenceNumber()))
+                    pass
             else:
-                # Caso o numero gerado seja menor que loss,
-                # apenas descarta o pacote
-                return
+                break
 
 
 

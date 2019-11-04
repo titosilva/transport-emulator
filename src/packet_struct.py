@@ -1,17 +1,17 @@
 import abc
 
 class Packet(metaclass=abc.ABCMeta):
-    __data = None
+    _data = None
 
     @abc.abstractmethod
     def getSize(self)->int:
         pass
 
     def setData(self, data: bytes):
-        self.__data = data
+        self._data = data
 
     def getData(self)->bytes:
-        return self.__data
+        return self._data
 
 class TCPSegment(Packet):
     def setSourcePort(self, srcprt: int)->bool:
@@ -29,6 +29,9 @@ class TCPSegment(Packet):
     def setSequenceNumber(self, seqnum: int):
         self.__seqnum = seqnum
         return True
+
+    def getSequenceNumber(self):
+        return self.__seqnum
 
     def getAckNumber(self):
         return self.__acknum
@@ -116,7 +119,10 @@ class TCPSegment(Packet):
 
     # Retorna o tamanho do pacote em bytes
     def getSize(self):
-        return len(self.__data) + self.__headsz/2
+        if self._data != None:
+            return len(self._data) + self.__headsz/2
+        else:
+            return self.__headsz/2
 
 class ACK(TCPSegment):
     def __init__(self, srcprt=0, dstprt=0, seqnum=0, acknum=0, headersz=5, winsz=0, chsum=0, urgpnt=0, opt=bytearray(0)):

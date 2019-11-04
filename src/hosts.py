@@ -8,7 +8,7 @@ class EmitterGBN(HostType):
         super().__init__(srcid, destid)
 
         # Base para a contagem dos pacotes enviados
-        self.__base = 0
+        self.__base = 1
         # Numero de sequencia e numero de reconhecimento
         self.__ack = 0
         self.__seq = self.__base
@@ -28,16 +28,22 @@ class EmitterGBN(HostType):
         self.__connection = connection
         self.__connection.setEmitter(self)
 
-    def __setTimeout(self, timeout: float):
+    def setWindowSize(self, winsz: int)->bool:
+        if winsz>0:
+            self.__winsz = winsz
+            return True
+        else:
+            return False
+
+    def setTimeout(self, timeout: float):
         self.__timeout = timeout
     
     # Funções que controlam o temporizador
     def __startTimer(self):
         self.__timer = time.time()
 
-    def __getTime(self):
-        self.__timer = time.time() - self.__timer
-        return self.__timer
+    def __getTime(self): 
+        return time.time() - self.__timer
 
     def __stopTimer(self):
         self.__timer = time.time()
@@ -77,14 +83,14 @@ class EmitterGBN(HostType):
     def __genPackets(self, quant: int):
         for i in range(quant):
             # Dados em bytes para teste
-            data = bytes('This is a test packet')
+            data = bytes(b'This is a test packet')
 
             # Gera novo pacote
             packet = TCPSegment()
             packet.setData(data)
 
             # Adiciona pacote ao final da fila de pacotes a serem enviados
-            self.add_packet_to_send(packet)
+            self.add_to_send_packet(packet)
 
     def __verifyTimeout(self)->bool:
         # Verifica se o timeout foi alcançado
@@ -136,7 +142,7 @@ class EmitterGBN(HostType):
         # Igual ao restante da janela que ainda esta disponivel
         self.__genPackets(self.__winsz - len(self._sendpackets))
 
-         # Verifica o timeout, se ainda houverem pacotes a serem recebidos
+        # Verifica o timeout, se ainda houverem pacotes a serem recebidos
         if self.__wait:
             # Se o timeout for atingido, envia os pacotes e para a execução da função
             if self.__verifyTimeout():
@@ -148,26 +154,19 @@ class EmitterGBN(HostType):
         
 
 
-class ReceiverGBN(PacketHandler):
+class ReceiverGBN(HostType):
     def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
         # Invoca construtor da classe base
-        super().__init__()
+        super().__init__(srcid, destid)
 
         # Numero de sequencia esperado
-        self.__seq = 0
+        self.__seq = 1
+
+        # Pacote para reconhecimentos
+        self.__sndpkt = ACK(acknum=self.__seq)
 
         # Conexão
         self.setConnection(connection)
-        # ID da fonte
-        self.setID(srcid)
-        # ID do destino
-        self.setDestID(destid)
-
-    def setID(self, idstr: str):
-        self._srcid = idstr
-
-    def setDestID(self, idstr: str):
-        self._destid = idstr
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
@@ -186,12 +185,13 @@ class ReceiverGBN(PacketHandler):
                 if packet.getSequenceNumber() == self.__seq:
                     # Se for, adiciona ACK à fila de pacotes a serem enviados 
                     # e incrementa o numero de sequencia esperado
-                    self.add_to_send_packet(ACK(acknum=self.__seq))
+                    self.__sndpkt = ACK(acknum=self.__seq)
+                    self.add_to_send_packet(self.__sndpkt)
                     self.__seq += 1
                 else:
                     # Se nao for o numero de sequencia esperado, apenas reenviada ACK com ultimo numero
                     # de sequencia recebido corretamente
-                    self.add_to_send_packet(ACK(acknum=self.__seq))
+                    self.add_to_send_packet(self.__sndpkt)
             except:
                 # Quando não há mais pacotes, é lançada uma excessão e a execução do while é finalizada
                 break

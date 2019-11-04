@@ -1,5 +1,6 @@
 from hosts import *
 from connection import *
+import time
 
 # Usando padrão singleton para garantir que haja apenas uma instância de simulador
 class EmulatorGBN(object):
@@ -10,28 +11,43 @@ class EmulatorGBN(object):
             self.receiver = ReceiverGBN(receiverid, emitterid, self.connection)
 
     # Instancia de emulador
-    emul = None
+    __emul = None
 
-    emitterid = 'd'
-    receiverid = 'r'
+    # Identificadores de emissor e receptor
+    __emitterid = 'e'
+    __receiverid = 'r'
 
     def __init__(self):
         # Cria a instancia, caso nao exista 
-        if not EmulatorGBN.emul:
-            EmulatorGBN.emul = EmulatorGBN.__EmulatorGBN(EmulatorGBN.emitterid, EmulatorGBN.receiverid)
+        if not EmulatorGBN.__emul:
+            EmulatorGBN.__emul = EmulatorGBN.__EmulatorGBN(EmulatorGBN.__emitterid, EmulatorGBN.__receiverid)
         # Reseta a instancia, caso exista
-        else:
-            # EmulatorGBN.emul.connection = None
-            # EmulatorGBN.emul.emitter = None
-            # EmulatorGBN.emul.receiver = None
+        else:   
+            EmulatorGBN.__emul = None
+            EmulatorGBN.__emul = EmulatorGBN.__EmulatorGBN(EmulatorGBN.__emitterid, EmulatorGBN.__receiverid) 
 
-            # EmulatorGBN.emul.connection = SimpleConnection()
-            # EmulatorGBN.emul.emitter = EmitterGBN(self.emitterid, receiverid, self.connection)
-            # EmulatorGBN.emul.receiver = ReceiverGBN(receiverid, emitterid, self.connection)
+    def setEmitterParams(self, winsz: int, timeout: float):
+        if not EmulatorGBN.__emul.emitter.setWindowSize(winsz):
+            raise Exception
 
-            EmulatorGBN.emul = None
-            EmulatorGBN.emul = EmulatorGBN.__EmulatorGBN(EmulatorGBN.emitterid, EmulatorGBN.receiverid)  
+        EmulatorGBN.__emul.emitter.setTimeout(timeout)
 
+    def setConnectionParams(self, loss: int, rate: float, distance: float, speed: float):
+        if not  EmulatorGBN.__emul.connection.setLoss(loss):
+            raise Exception
 
-        
+        EmulatorGBN.__emul.connection.setRate(rate)
+        EmulatorGBN.__emul.connection.setDistance(distance)
+        EmulatorGBN.__emul.connection.setSpeed(speed)
 
+    def printState(self):
+        print('\npackets on connection' + '\t' + str(time.time()))
+        for packet in self.__emul.connection.getPackets()[0]:
+            print(str(packet[0].getSequenceNumber()) + '\t' + str(packet[0].getAckNumber()) +'\t' +  packet[1] + '\t' +  packet[2] + '\t' + str(packet[0].isACK()) + '\t' + str(packet[0].getData()))
+
+    def run(self):
+        self.__emul.emitter.run()
+        self.printState()
+        self.__emul.connection.run()
+        self.printState()
+        self.__emul.receiver.run()
