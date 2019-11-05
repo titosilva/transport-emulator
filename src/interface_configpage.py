@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
-
+import interface_emulatorpage as emulpage
 
 HEIGHT = 720
 WIDTH = 1280
@@ -25,7 +25,8 @@ def button_pressed():
         tkinter.messagebox.showinfo('Erro', 'Tamanho da Janela do Emissor pode conter apenas números')
     else:
         # Inicia a emulação
-        pass
+        emulpage.EmulatorPage.setMode(mode="GBN")
+        emulpage.EmulatorPage.emulate()
 
 
 root = tk.Tk()
@@ -76,10 +77,11 @@ tamanho_da_janela_do_emissor_label.place(relx=0.045,rely=0.605, relheight=0.05, 
 tamanho_da_janela_do_emissor_entry = tk.Entry(frame, font = 40)
 tamanho_da_janela_do_emissor_entry.place(relx=0.23,rely=0.605,relwidth=0.54, relheight=0.04)
 
+# Radio buttons para selecionar modo: GBN ou Stop And Wait
 
 #Botão Emular
 button = tk.Button(frame, text="Emular", bg='#FFB778',font=1,activebackground='#E06906', command = button_pressed)
-button.place(relx = 0.450, rely = 0.675, relheight=0.05, relwidth=0.1)
+button.place(relx = 0.450, rely = 0.8, relheight=0.05, relwidth=0.1)
 
 
 
