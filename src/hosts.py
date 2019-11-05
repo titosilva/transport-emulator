@@ -265,13 +265,10 @@ class EmitterSW(HostType):
             if packet.isACK():
                 # Verifica o numero de ACK (0 ou 1)
                 ack = packet.getAckNumber()
-                print("ack: "+ str(ack))
-                print("seq: "+ str(self.__seq))
 
                 # Se o ACK recebido é o esperado, desativamos o temporizador de timeout
                 # e removemos o pacote ja confirmado para que possa ser enviado o proximo pacote
                 if ack == self.__seq:
-                    print('ok')
                     try: 
                         self.__sendpackets.clear()
                     except:
@@ -279,7 +276,6 @@ class EmitterSW(HostType):
                     self.__wait = False
                     # Trocamos o numero de sequencia, de 0 para 1 ou vice-versa
                     self.__seq = (self.__seq+1)%2
-                    print("New seq: "+ str(self.__seq))
                     self.__stopTimer()
                 else:
                     # Caso não seja recebido ack esperado,
@@ -318,6 +314,7 @@ class EmitterSW(HostType):
         # entrega o pacote à conexão
         # inicia o timer para timeout
         self.__startTimer()
+        self.__wait = True
 
         # Pega pacote do buffer de pacotes
         packet = self.get_to_send_packet(0)
