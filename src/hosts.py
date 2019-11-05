@@ -2,6 +2,7 @@ from packet_handler import *
 from connection import *
 import time
 
+# Emissor Go-Back-N
 class EmitterGBN(HostType):
     def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
         # Invoca o construtor da classe base
@@ -153,7 +154,7 @@ class EmitterGBN(HostType):
             self.__sendPackets()
         
 
-
+# Receptor Go-Back-N
 class ReceiverGBN(HostType):
     def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
         # Invoca construtor da classe base
@@ -212,3 +213,198 @@ class ReceiverGBN(HostType):
     def run(self):
         self.__analyseReceivedPackets()
         self.__sendPackets()
+
+
+# Emissor Stop-and-Wait
+class EmitterSW(HostType):
+    def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
+        # Invoca o construtor da classe base
+        super().__init__(srcid, destid)
+
+        # Controle da sequencia (0 e 1)
+        self.__seq = 1
+        # Indica se há pacotes sendo esperados para serem recebidos
+        self.__wait = False
+        # Timeout (tempo maximo ate o reenvio)
+        self.__timeout = 0
+        # Time (tempo passado desde a ultima chamada de StartTimer)
+        self.__timer = time.time()
+        # Conexão
+        self.setConnection(connection)
+
+    # Define a conexão por onde serão enviados os pacotes
+    def setConnection(self, connection: SimpleConnection):
+        self.__connection = connection
+        self.__connection.setEmitter(self)
+
+    def setTimeout(self, timeout: float):
+        self.__timeout = timeout
+    
+    # Funções que controlam o temporizador
+    def __startTimer(self):
+        self.__timer = time.time()
+
+    def __getTime(self): 
+        return time.time() - self.__timer
+
+    def __stopTimer(self):
+        self.__timer = time.time()
+
+    def __analyseReceivedPacket(self):
+        # Verifica se foi recebido um ACK e faz seu processamento
+        try:
+            # Pega um pacote do buffer de recebimento (o buffer contem tuples, entao pegamos o primeiro elemento
+            # da tuple, que corresponde, na implementação, ao pacote)
+            packet = self._recvpackets.popleft()[0]
+
+            # Como é esperado apenas o recebimento de um pacote, esvaziamos o buffer para o caso 
+            # no qual outros pacotes que não deviam ser recebidos tenham sido recebidos
+            self._recvpackets.clear()
+
+            # Verifica se o pacote é um ACK
+            if packet.isACK():
+                # Verifica o numero de ACK (0 ou 1)
+                ack = packet.getAckNumber()
+                print("ack: "+ str(ack))
+                print("seq: "+ str(self.__seq))
+
+                # Se o ACK recebido é o esperado, desativamos o temporizador de timeout
+                # e removemos o pacote ja confirmado para que possa ser enviado o proximo pacote
+                if ack == self.__seq:
+                    print('ok')
+                    try: 
+                        self.__sendpackets.clear()
+                    except:
+                        pass
+                    self.__wait = False
+                    # Trocamos o numero de sequencia, de 0 para 1 ou vice-versa
+                    self.__seq = (self.__seq+1)%2
+                    print("New seq: "+ str(self.__seq))
+                    self.__stopTimer()
+                else:
+                    # Caso não seja recebido ack esperado,
+                    # Reenviamos o pacote. Para isso, somente precisamos esperar
+                    # o timeout
+                    pass
+        except:
+            # Se não há pacotes, apenas finaliza a execução da função
+            return
+
+    # Gera um pacote para ser enviado, caso nao hajam pacotes a serem enviados
+    def __genPacket(self):
+        if len(self._sendpackets)==0:
+            # Dados em bytes para teste
+            data = bytes(b'This is a test packet')
+
+            # Gera novo pacote
+            packet = TCPSegment()
+            packet.setData(data)
+
+            # Guarda pacote para ser enviado posteriormente
+            self.add_to_send_packet(packet)
+
+    def __verifyTimeout(self)->bool:
+        # Verifica se o timeout foi alcançado
+        if self.__getTime() >= self.__timeout:
+            # Se o timeout for alcançado, os pacote deve ser reenviado  
+            self.__sendPacket()
+            # Caso seja reenviado o pacote, é retornado True, indicando
+            # a ocorrencia
+            return True
+        else:
+            return False
+
+    def __sendPacket(self):
+        # entrega o pacote à conexão
+        # inicia o timer para timeout
+        self.__startTimer()
+
+        # Pega pacote do buffer de pacotes
+        packet = self.get_to_send_packet(0)
+
+        if packet != None:        
+            # Coloca o numero de sequencia no pacote
+            packet.setSequenceNumber(self.__seq)
+
+            # Envia o pacote
+            self.__connection.receive_packet(packet, self._srcid, self._destid)
+
+    def run(self):
+        # Verifica o pacote recebido
+        self.__analyseReceivedPacket()
+
+        # Gera um pacote a ser enviado, caso o ultimo pacote ja tenha sido confirmado
+        self.__genPacket()
+
+        # Verifica o timeout, se ainda houverem pacotes a serem recebidos
+        if self.__wait:
+            # Se o timeout for atingido, envia os pacotes e para a execução da função
+            if self.__verifyTimeout():
+                return
+        else:
+            # Caso nao sejam esperado pacote de confirmação, envia novo pacote
+            self.__sendPacket()
+
+
+# Receptor SW
+class ReceiverSW(HostType):
+    def __init__(self, srcid: str, destid: str, connection: SimpleConnection):
+        # Invoca construtor da classe base
+        super().__init__(srcid, destid)
+
+        # Numero de sequencia esperado
+        self.__seq = 1
+
+        # Pacote para reconhecimentos
+        self.__sndpkt = ACK(acknum=self.__seq)
+
+        # Conexão
+        self.setConnection(connection)
+
+    # Define a conexão por onde serão enviados os pacotes
+    def setConnection(self, connection: SimpleConnection):
+        self.__connection = connection
+        self.__connection.setReceiver(self)
+
+
+    # Analisa os pacotes recebidos
+    def __analyseReceivedPacket(self):
+            try:
+                # Tentamos retirar um pacote da fila de pacotes recebidos
+                packet = self._recvpackets.popleft()[0]
+
+                # Limpamos o buffer para o caso de serem recebidos outros pacotes, o que nao e esperado
+                try:
+                    self._recvpackets.clear()
+                except:
+                    pass
+                
+                # Verifica se o numero de sequencia do pacote é o esperado
+                if packet.getSequenceNumber() == self.__seq:
+                    # Se for, adiciona ACK à fila de pacotes a serem enviados 
+                    # e muda o numero de sequencia esperado
+                    self.__sndpkt = ACK(acknum=self.__seq)
+                    self.add_to_send_packet(self.__sndpkt)
+                    self.__seq = (self.__seq + 1)%2
+                else:
+                    # Se nao for o numero de sequencia esperado, apenas reenvia ACK com ultimo numero
+                    # de sequencia recebido corretamente
+                    self.add_to_send_packet(self.__sndpkt)
+            except:
+                # Quando não há mais pacotes, é lançada uma excessão e a execução da funçao é finalizada
+                return
+
+    # Função usada para enviar ACK's
+    def __sendPacket(self):
+        try:
+            # Pega o pacote da fila de pacotes a serem enviados
+            packet = self._sendpackets.popleft()
+            
+            # Entrega o pacote a conexão
+            self.__connection.receive_packet(packet, self._srcid, self._destid)
+        except:
+            return
+
+    def run(self):
+        self.__analyseReceivedPacket()
+        self.__sendPacket()
