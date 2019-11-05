@@ -23,6 +23,9 @@ def button_pressed():
         tkinter.messagebox.showinfo('Erro', 'Velocidade de transmissão pode conter apenas números')
     elif not(janela_do_emissor.isdigit()):
         tkinter.messagebox.showinfo('Erro', 'Tamanho da Janela do Emissor pode conter apenas números')
+    else:
+        # Inicia a emulação
+        pass
 
 
 root = tk.Tk()
