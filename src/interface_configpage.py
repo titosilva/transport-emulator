@@ -31,11 +31,28 @@ def button_pressed():
     elif not(is_num(janela_do_emissor)):
         tkinter.messagebox.showinfo('Erro', 'Tamanho da Janela do Emissor pode conter apenas números')
     else:
+        # Pega os parametros
+        vazao = float(vazao)
+        distancia = float(distancia)
+        probabilidade_de_erros = float(probabilidade_de_erros)
+        velocidade_da_transmissao = float(velocidade_da_transmissao)
+        janela_do_emissor = int(janela_do_emissor)
+
+        # Pega o protocolo selecionado
+        value = var.get()
+        if value==1:
+            emulpage.EmulatorPage.setMode(mode="SW")
+        elif value==2:
+            emulpage.EmulatorPage.setMode(mode="GBN")
+        else:
+            tkinter.messagebox.showinfo('Erro', 'Selecione um tipo de protocolo')
+            return
+
         # Inicia a emulação
         root.destroy()
-        emulpage.EmulatorPage.setMode(mode="SW")
-        emulpage.EmulatorPage.emulate()
-
+        emulpage.EmulatorPage.emulate(probabilidade_de_erros, vazao, distancia, velocidade_da_transmissao, janela_do_emissor)
+        return
+        
 
 root = tk.Tk()
 root.title("Welcome to Shiba Emulator :)")
@@ -86,6 +103,13 @@ tamanho_da_janela_do_emissor_entry = tk.Entry(frame, font = 40)
 tamanho_da_janela_do_emissor_entry.place(relx=0.279,rely=0.605,relwidth=0.54, relheight=0.04)
 
 # Radio buttons para selecionar modo: GBN ou Stop And Wait
+var = tk.IntVar()
+
+radiosw = tk.Radiobutton(root, text='Stop-and-Wait', variable=var, value=1, bg='#fce5ac')
+radiogbn = tk.Radiobutton(root, text='Go-Back-N', variable=var, value=2, bg='#fce5ac')
+
+radiosw.place(relx=0.28, rely=0.7)
+radiogbn.place(relx=0.28, rely=0.75)
 
 #Botão Emular
 button = tk.Button(frame, text="Emulate", bg='#FFB778',font=1,activebackground='#E06906', command = button_pressed)

@@ -11,6 +11,9 @@ class EmulatorPage:
     # Usado para controlar o loop de emulação (metodo run)
     __emulationstate = 0
 
+    def __returnToConfigPage(root: tk.Tk):
+        root.destroy()
+
     @staticmethod
     def setMode(mode: str):
         if mode == 'GBN' or mode == 'SW':
@@ -37,7 +40,7 @@ class EmulatorPage:
             return False
 
     @staticmethod
-    def setConnectionParams(loss: int=0, rate: float=100000, distance: float=0, speed: float=10000)->bool:
+    def setConnectionParams(loss: int, rate: float, distance: float, speed: float)->bool:
         try:
             EmulatorPage.__emul.setConnectionParams(loss, rate, distance, speed)
             return True
@@ -83,13 +86,13 @@ class EmulatorPage:
         root.after(delay, lambda: EmulatorPage.run(delay, root))
                 
     @staticmethod
-    def emulate():   
+    def emulate(loss: int=0, rate: float=100000, distance: float=0, speed: float=10000, winsz: int=10):
         root = tk.Tk()
         root.geometry("1280x720")
         root.configure(background='#fce5ac')
         root.title("Welcome to Shiba Emulator :)")
 
-        modelabel = tk.Label(root, text='Mode: ' + EmulatorPage.__mode)
+        modelabel = tk.Label(root, text='Mode: ' + EmulatorPage.__mode, bg='#fce5ac')
         modelabel.place(relx=0.1, rely=0.1)
 
         emitterlabel = tk.Label(root, text='Emitter',bg='#fce5ac', font = 40)
@@ -121,12 +124,15 @@ class EmulatorPage:
         emitterseq.place(relx=0.125, rely=0.7)
         receiverseq.place(relx=0.625, rely=0.7)
 
-        configbutton = tk.Button(root, text='Configure',activebackground='#E06906', bg='#FFB778',font=1)
+        configbutton = tk.Button(root, text='Exit',activebackground='#E06906', bg='#FFB778',font=1, command= lambda: EmulatorPage.__returnToConfigPage(root))
         configbutton.place(relx=0.125, rely=0.8, relwidth=0.75, relheight=0.05)
 
         delay = 100
-        EmulatorPage.createEmulator()        
-        EmulatorPage.setEmitterParams()
-        EmulatorPage.setConnectionParams()
-        root.after(1, lambda: EmulatorPage.run(delay, root))
+        EmulatorPage.createEmulator()   
+        # Usando 41 como tamanho medio dos pacotes, pois todos os pacotes
+        # usam b'This is a test packet' como dados e header padrao de 20 bytes
+        timeout=2.1*(41/rate + distance/speed)
+        EmulatorPage.setEmitterParams(winsz, timeout)
+        EmulatorPage.setConnectionParams(loss, rate, distance, speed)
+        root.after(0, lambda: EmulatorPage.run(delay, root))
         root.mainloop()
