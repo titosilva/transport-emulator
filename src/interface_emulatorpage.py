@@ -83,24 +83,26 @@ class EmulatorPage:
         root.after(delay, lambda: EmulatorPage.run(delay, root))
                 
     @staticmethod
-    def emulate():    
+    def emulate():   
         root = tk.Tk()
+        root.geometry("1280x720")
+        root.configure(background='#fce5ac')
         root.title("Welcome to Shiba Emulator :)")
 
         modelabel = tk.Label(root, text='Mode: ' + EmulatorPage.__mode)
         modelabel.place(relx=0.1, rely=0.1)
 
-        emitterlabel = tk.Label(root, text='Emitter')
-        connectionlabel = tk.Label(root, text='Connection')
-        receiverlabel = tk.Label(root, text='Receiver')
+        emitterlabel = tk.Label(root, text='Emitter',bg='#fce5ac', font = 40)
+        connectionlabel = tk.Label(root, text='Connection',bg='#fce5ac', font = 40)
+        receiverlabel = tk.Label(root, text='Receiver',bg='#fce5ac', font = 40)
 
         emitterlabel.place(relx=0.225, rely=0.1)
         connectionlabel.place(relx=0.475, rely=0.1)
         receiverlabel.place(relx=0.725, rely=0.1)
 
-        emitterlist = tk.Listbox()
-        connectionlist = tk.Listbox()
-        receiverlist = tk.Listbox()
+        emitterlist = tk.Listbox(root)
+        connectionlist = tk.Listbox(root)
+        receiverlist = tk.Listbox(root)
 
         EmulatorPage.__listboxes.append(emitterlist)
         EmulatorPage.__listboxes.append(connectionlist)
@@ -110,8 +112,8 @@ class EmulatorPage:
         connectionlist.place(relx=0.375, rely=0.15, relwidth=0.25, relheight=0.5)
         receiverlist.place(relx=0.625, rely=0.15, relwidth=0.25, relheight=0.5)
 
-        emitterseq = tk.Label(root, text='Seq: ')
-        receiverseq = tk.Label(root, text='Seq: ')
+        emitterseq = tk.Label(root, text='Seq: ',bg='#fce5ac', font = 40)
+        receiverseq = tk.Label(root, text='Expected Seq: ',bg='#fce5ac', font = 40)
 
         EmulatorPage.__seqlabels.append(emitterseq)
         EmulatorPage.__seqlabels.append(receiverseq)
@@ -119,7 +121,7 @@ class EmulatorPage:
         emitterseq.place(relx=0.125, rely=0.7)
         receiverseq.place(relx=0.625, rely=0.7)
 
-        configbutton = tk.Button(root, text='Configurar')
+        configbutton = tk.Button(root, text='Configure',activebackground='#E06906', bg='#FFB778',font=1)
         configbutton.place(relx=0.125, rely=0.8, relwidth=0.75, relheight=0.05)
 
         delay = 100
