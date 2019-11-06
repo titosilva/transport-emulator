@@ -42,15 +42,47 @@ class EmulatorGBN(object):
         EmulatorGBN.__emul.connection.setDistance(distance)
         EmulatorGBN.__emul.connection.setSpeed(speed)
 
+    def getState(self):
+        # Retorna as listas de pacotes de cada host e da connection
+        # Que representam o estado atual do sistema
+        emitterpktlist = []
+        connectionpktlist = []
+        receiverpktlist = []
+
+        for packet in self.__emul.emitter.getPackets()[0]:
+            if packet[0].isACK():
+                emitterpktlist.append("ACK "+str(packet[0].getAckNumber()))
+            else:
+                emitterpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
+
+        for packet in self.__emul.connection.getPackets()[0]:
+            if packet[0].isACK():
+                connectionpktlist.append("ACK "+str(packet[0].getAckNumber()))
+            else:
+                connectionpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
+
+        for packet in self.__emul.receiver.getPackets()[0]:
+            if packet[0].isACK():
+                receiverpktlist.append("ACK "+str(packet[0].getAckNumber()))
+            else:
+                receiverpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
+
+        return (emitterpktlist, connectionpktlist, receiverpktlist)
+
     def printState(self):
         print('\npackets on connection' + '\t' + str(time.time()))
         for packet in self.__emul.connection.getPackets()[0]:
             print(str(packet[0].getSequenceNumber()) + '\t' + str(packet[0].getAckNumber()) +'\t' +  packet[1] + '\t' +  packet[2] + '\t' + str(packet[0].isACK()) + '\t' + str(packet[0].getData()))
 
-    def run(self):
+    def runEmitter(self):
         self.__emul.emitter.run()
+    
+    def runConnection(self):
         self.__emul.connection.run()
+    
+    def runReceiver(self):
         self.__emul.receiver.run()
+
 
 # Emulador de protocolo Stop-and-wait
 class EmulatorSW(object):
@@ -87,14 +119,43 @@ class EmulatorSW(object):
         EmulatorSW.__emul.connection.setDistance(distance)
         EmulatorSW.__emul.connection.setSpeed(speed)
 
+    def getState(self):
+        # Retorna as listas de pacotes de cada host e da connection
+        # Que representam o estado atual do sistema
+        emitterpktlist = []
+        connectionpktlist = []
+        receiverpktlist = []
+
+        for packet in self.__emul.emitter.getPackets()[0]:
+            if packet[0].isACK():
+                emitterpktlist.append("ACK "+str(packet[0].getAckNumber()))
+            else:
+                emitterpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
+
+        for packet in self.__emul.connection.getPackets()[0]:
+            if packet[0].isACK():
+                connectionpktlist.append("ACK "+str(packet[0].getAckNumber()))
+            else:
+                connectionpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
+
+        for packet in self.__emul.receiver.getPackets()[0]:
+            if packet[0].isACK():
+                receiverpktlist.append("ACK "+str(packet[0].getAckNumber()))
+            else:
+                receiverpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
+
+        return (emitterpktlist, connectionpktlist, receiverpktlist)
+
     def printState(self):
         print('\npackets on connection' + '\t' + str(time.time()))
         for packet in self.__emul.connection.getPackets()[0]:
             print(str(packet[0].getSequenceNumber()) + '\t' + str(packet[0].getAckNumber()) +'\t' +  packet[1] + '\t' +  packet[2] + '\t' + str(packet[0].isACK()) + '\t' + str(packet[0].getData()))
 
-    def run(self):
+    def runEmitter(self):
         self.__emul.emitter.run()
-        self.printState()
+    
+    def runConnection(self):
         self.__emul.connection.run()
-        self.printState()
+    
+    def runReceiver(self):
         self.__emul.receiver.run()

@@ -25,7 +25,8 @@ def button_pressed():
         tkinter.messagebox.showinfo('Erro', 'Tamanho da Janela do Emissor pode conter apenas números')
     else:
         # Inicia a emulação
-        emulpage.EmulatorPage.setMode(mode="GBN")
+        root.destroy()
+        emulpage.EmulatorPage.setMode(mode="SW")
         emulpage.EmulatorPage.emulate()
 
 
@@ -82,9 +83,5 @@ tamanho_da_janela_do_emissor_entry.place(relx=0.23,rely=0.605,relwidth=0.54, rel
 #Botão Emular
 button = tk.Button(frame, text="Emular", bg='#FFB778',font=1,activebackground='#E06906', command = button_pressed)
 button.place(relx = 0.450, rely = 0.8, relheight=0.05, relwidth=0.1)
-
-
-
-
 
 root.mainloop()
