@@ -69,6 +69,13 @@ class EmulatorGBN(object):
 
         return (emitterpktlist, connectionpktlist, receiverpktlist)
 
+    def getSequenceNumbers(self):
+        # Obtem o numero de sequencia do emissor e o numero de sequencia esperado pelo receptor
+        emitterseq = self.__emul.emitter.getSequenceNumber()
+        receiverseq = self.__emul.receiver.getExpectedSequenceNumber()
+
+        return (emitterseq, receiverseq)
+
     def printState(self):
         print('\npackets on connection' + '\t' + str(time.time()))
         for packet in self.__emul.connection.getPackets()[0]:
@@ -144,7 +151,16 @@ class EmulatorSW(object):
             else:
                 receiverpktlist.append("PKT "+str(packet[0].getSequenceNumber()))
 
+
         return (emitterpktlist, connectionpktlist, receiverpktlist)
+
+    def getSequenceNumbers(self):
+        # Obtem o numero de sequencia do emissor e o numero de sequencia esperado pelo receptor
+        emitterseq = self.__emul.emitter.getSequenceNumber()
+        receiverseq = self.__emul.receiver.getExpectedSequenceNumber()
+
+        return (emitterseq, receiverseq)
+
 
     def printState(self):
         print('\npackets on connection' + '\t' + str(time.time()))

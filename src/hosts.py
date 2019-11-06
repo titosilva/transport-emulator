@@ -24,6 +24,9 @@ class EmitterGBN(HostType):
         # Conexão
         self.setConnection(connection)
 
+    def getSequenceNumber(self):
+        return self.__seq
+
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
         self.__connection = connection
@@ -174,6 +177,9 @@ class ReceiverGBN(HostType):
         self.__connection = connection
         self.__connection.setReceiver(self)
 
+    def getExpectedSequenceNumber(self):
+        return self.__seq
+
 
     # Analisa os pacotes recebidos
     def __analyseReceivedPackets(self):
@@ -231,6 +237,9 @@ class EmitterSW(HostType):
         self.__timer = time.time()
         # Conexão
         self.setConnection(connection)
+
+    def getSequenceNumber(self):
+        return self.__seq
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
@@ -357,6 +366,9 @@ class ReceiverSW(HostType):
 
         # Conexão
         self.setConnection(connection)
+
+    def getExpectedSequenceNumber(self):
+        return self.__seq
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):

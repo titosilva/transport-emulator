@@ -2,7 +2,11 @@ import tkinter as tk
 from emulatorexec import *
 
 class EmulatorPage:
+    # Usado para guardar o protocolo a ser simulado
     __mode = 'SW'
+    # Usado para guardar referencia às labels de numero de sequencia
+    __seqlabels = []
+    # Usado para armazenar referencia às listbox
     __listboxes = []
     # Usado para controlar o loop de emulação (metodo run)
     __emulationstate = 0
@@ -45,15 +49,19 @@ class EmulatorPage:
         # Executa os metodos run dos hosts e da connection no emulador
         # Mostra os pacotes na tela
         # Mostra os numeros de sequencia na tela
+        state = None
         if EmulatorPage.__emulationstate == 0:
             EmulatorPage.__emul.runEmitter()
             state = EmulatorPage.__emul.getState()
+            seq = EmulatorPage.__emul.getSequenceNumbers()
         elif EmulatorPage.__emulationstate == 1:
             EmulatorPage.__emul.runConnection()
             state = EmulatorPage.__emul.getState()
+            seq = EmulatorPage.__emul.getSequenceNumbers()
         else:
             EmulatorPage.__emul.runReceiver()
             state = EmulatorPage.__emul.getState()
+            seq = EmulatorPage.__emul.getSequenceNumbers()
 
         EmulatorPage.__emulationstate = (EmulatorPage.__emulationstate + 1)%3
 
@@ -68,6 +76,9 @@ class EmulatorPage:
                 EmulatorPage.__listboxes[listcounter].insert(pktcounter, pkt)
                 pktcounter += 1
             listcounter += 1
+
+        EmulatorPage.__seqlabels[0].config(text='Seq: '+str(seq[0]))
+        EmulatorPage.__seqlabels[1].config(text='Seq: '+str(seq[1]))
 
         root.after(delay, lambda: EmulatorPage.run(delay, root))
                 
@@ -100,7 +111,10 @@ class EmulatorPage:
         receiverlist.place(relx=0.625, rely=0.15, relwidth=0.25, relheight=0.5)
 
         emitterseq = tk.Label(root, text='Seq: ')
-        receiverseq = tk.Label(root, text='Expected Seq: ')
+        receiverseq = tk.Label(root, text='Seq: ')
+
+        EmulatorPage.__seqlabels.append(emitterseq)
+        EmulatorPage.__seqlabels.append(receiverseq)
 
         emitterseq.place(relx=0.125, rely=0.7)
         receiverseq.place(relx=0.625, rely=0.7)
