@@ -68,8 +68,8 @@ titulo_label = tk.Label(frame, text = "Shiba Emulator", font = 1200, bg='#fce5ac
 titulo_label.place(relx=0.4,rely=0.1,relwidth=0.2, relheight=0.2)
 
 #Vazão
-vazao_label = tk.Label(frame, text = "Flow: ", bg='#fce5ac', font = 40)
-vazao_label.place(relx=0.2,rely=0.325, relheight=0.05, relwidth=0.1)
+vazao_label = tk.Label(frame, text = "Throughput: ", bg='#fce5ac', font = 40)
+vazao_label.place(relx=0.18 ,rely=0.325, relheight=0.05, relwidth=0.1)
 
 vazao_entry = tk.Entry(frame, font = 40)
 vazao_entry.place(relx=0.28,rely=0.325,relwidth=0.54, relheight=0.04)

@@ -11,7 +11,7 @@ class EmulatorPage:
     # Usado para controlar o loop de emulação (metodo run)
     __emulationstate = 0
 
-    def __returnToConfigPage(root: tk.Tk):
+    def __End(root: tk.Tk):
         root.destroy()
 
     @staticmethod
@@ -124,7 +124,7 @@ class EmulatorPage:
         emitterseq.place(relx=0.125, rely=0.7)
         receiverseq.place(relx=0.625, rely=0.7)
 
-        configbutton = tk.Button(root, text='Exit',activebackground='#E06906', bg='#FFB778',font=1, command= lambda: EmulatorPage.__returnToConfigPage(root))
+        configbutton = tk.Button(root, text='Exit',activebackground='#E06906', bg='#FFB778',font=1, command= lambda: EmulatorPage.__End(root))
         configbutton.place(relx=0.125, rely=0.8, relwidth=0.75, relheight=0.05)
 
         delay = 100
