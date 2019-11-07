@@ -4,8 +4,8 @@ from emulatorexec import *
 class EmulatorPage:
     # Usado para guardar o protocolo a ser simulado
     __mode = 'SW'
-    # Usado para guardar referencia às labels de numero de sequencia
-    __seqlabels = []
+    # Usado para guardar referencia às labels
+    __infolabels = []
     # Usado para armazenar referencia às listbox
     __listboxes = []
     # Usado para controlar o loop de emulação (metodo run)
@@ -52,21 +52,25 @@ class EmulatorPage:
         # Executa os metodos run dos hosts e da connection no emulador
         # Mostra os pacotes na tela
         # Mostra os numeros de sequencia na tela
-        state = None
+
+        # Obtem os pactes a serem exibidos na tela
+        # Obtem os numeros de sequencia a serem exibidos na tela
         if EmulatorPage.__emulationstate == 0:
             EmulatorPage.__emul.runEmitter()
-            state = EmulatorPage.__emul.getState()
-            seq = EmulatorPage.__emul.getSequenceNumbers()
         elif EmulatorPage.__emulationstate == 1:
             EmulatorPage.__emul.runConnection()
-            state = EmulatorPage.__emul.getState()
-            seq = EmulatorPage.__emul.getSequenceNumbers()
         else:
             EmulatorPage.__emul.runReceiver()
-            state = EmulatorPage.__emul.getState()
-            seq = EmulatorPage.__emul.getSequenceNumbers()
 
+        # Altera o estado de emulação, para executar o proximo packet_handler na proxima execução
+        # do metodo run
         EmulatorPage.__emulationstate = (EmulatorPage.__emulationstate + 1)%3
+
+        # Obtem dados do emulador
+        state = None
+        state = EmulatorPage.__emul.getState()
+        seq = EmulatorPage.__emul.getSequenceNumbers()
+        eff = EmulatorPage.__emul.getEfficiency()
 
         # Display packets in the listboxes
         for listbox in EmulatorPage.__listboxes:
@@ -80,8 +84,13 @@ class EmulatorPage:
                 pktcounter += 1
             listcounter += 1
 
-        EmulatorPage.__seqlabels[0].config(text='Seq: '+str(seq[0]))
-        EmulatorPage.__seqlabels[1].config(text='Seq: '+str(seq[1]))
+        # Usa a lista infolabels para alterar os valores mostrados nas labels de numero de sequencia
+        EmulatorPage.__infolabels[0].config(text='Seq: '+str(seq[0]))
+        EmulatorPage.__infolabels[1].config(text='Seq: '+str(seq[1]))
+
+        # Usa lista infolabels para atualizar o dado de eficiencia
+        EmulatorPage.__infolabels[2].config(text='Efficiency: '+str(eff))
+        
 
         root.after(delay, lambda: EmulatorPage.run(delay, root))
                 
@@ -116,16 +125,20 @@ class EmulatorPage:
         receiverlist.place(relx=0.625, rely=0.15, relwidth=0.25, relheight=0.5)
 
         emitterseq = tk.Label(root, text='Seq: ',bg='#fce5ac', font = 40)
-        receiverseq = tk.Label(root, text='Expected Seq: ',bg='#fce5ac', font = 40)
+        receiverseq = tk.Label(root, text='Seq: ',bg='#fce5ac', font = 40)
 
-        EmulatorPage.__seqlabels.append(emitterseq)
-        EmulatorPage.__seqlabels.append(receiverseq)
+        EmulatorPage.__infolabels.append(emitterseq)
+        EmulatorPage.__infolabels.append(receiverseq)
+
+        efficiencylabel = tk.Label(root, text='Efficiency: ', bg='#fce5ac', font = 40)
+        efficiencylabel.place(relx=0.125, rely=0.05)
+        EmulatorPage.__infolabels.append(efficiencylabel)
 
         emitterseq.place(relx=0.125, rely=0.7)
         receiverseq.place(relx=0.625, rely=0.7)
 
         configbutton = tk.Button(root, text='Exit',activebackground='#E06906', bg='#FFB778',font=1, command= lambda: EmulatorPage.__End(root))
-        configbutton.place(relx=0.125, rely=0.8, relwidth=0.75, relheight=0.05)
+        configbutton.place(relx=0.125, rely=0.9, relwidth=0.75, relheight=0.05)
 
         delay = 100
         EmulatorPage.createEmulator()   

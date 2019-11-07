@@ -24,8 +24,15 @@ class EmitterGBN(HostType):
         # Conexão
         self.setConnection(connection)
 
+        # Quantidade total de bytes ja enviados
+        self.__senttotal = 0
+
+
     def getSequenceNumber(self):
         return self.__seq
+
+    def getSentTotal(self):
+        return self.__senttotal
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
@@ -128,6 +135,9 @@ class EmitterGBN(HostType):
                 # Entrega pacotes à conexão, que, por sua vez, os entregará ao destinatário(receiver)
                 self.__connection.receive_packet(packet, self._srcid, self._destid)
 
+               # Adiciona o tamanho do pacote, em bytes, à contagem da quantidade total de bytes enviados
+                self.__senttotal += packet.getSize()
+
                 # Incrementa o numero de sequencia
                 self.__seq += 1
 
@@ -166,6 +176,9 @@ class ReceiverGBN(HostType):
         # Numero de sequencia esperado
         self.__seq = 1
 
+        # Quantidade total de bytes ja enviados
+        self.__senttotal = 0
+
         # Pacote para reconhecimentos
         self.__sndpkt = ACK(acknum=self.__seq)
 
@@ -180,6 +193,8 @@ class ReceiverGBN(HostType):
     def getExpectedSequenceNumber(self):
         return self.__seq
 
+    def getSentTotal(self):
+        return self.__senttotal
 
     # Analisa os pacotes recebidos
     def __analyseReceivedPackets(self):
@@ -212,6 +227,9 @@ class ReceiverGBN(HostType):
                 
                 # Entrega o pacote a conexão
                 self.__connection.receive_packet(packet, self._srcid, self._destid)
+
+                # Adiciona o tamanho do pacote, em bytes, à contagem da quantidade total de bytes enviados
+                self.__senttotal += packet.getSize()
             except:
                 # Quando nao ha mais pacotes, é lançada uma excessão e o while é finalizado
                 break
@@ -229,6 +247,10 @@ class EmitterSW(HostType):
 
         # Controle da sequencia (0 e 1)
         self.__seq = 1
+        # Quantidade total de bytes ja enviados
+        self.__senttotal = 0
+        # Quantidade de pacotes ja enviados e confirmados
+        self.__ackedtotal = 0
         # Indica se há pacotes sendo esperados para serem recebidos
         self.__wait = False
         # Timeout (tempo maximo ate o reenvio)
@@ -240,6 +262,12 @@ class EmitterSW(HostType):
 
     def getSequenceNumber(self):
         return self.__seq
+
+    def getSentTotal(self):
+        return self.__senttotal
+
+    def getAckedTotal(self):
+        return self.__ackedtotal
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
@@ -286,6 +314,8 @@ class EmitterSW(HostType):
                     # Trocamos o numero de sequencia, de 0 para 1 ou vice-versa
                     self.__seq = (self.__seq+1)%2
                     self.__stopTimer()
+                    # Adicionamos à contagem de pacotes reconhecidos
+                    self.__ackedtotal += 1
                 else:
                     # Caso não seja recebido ack esperado,
                     # Reenviamos o pacote. Para isso, somente precisamos esperar
@@ -335,6 +365,9 @@ class EmitterSW(HostType):
             # Envia o pacote
             self.__connection.receive_packet(packet, self._srcid, self._destid)
 
+            # Adiciona o tamanho do pacote, em bytes, à contagem da quantidade total de bytes enviados
+            self.__senttotal += packet.getSize()
+
     def run(self):
         # Verifica o pacote recebido
         self.__analyseReceivedPacket()
@@ -361,6 +394,10 @@ class ReceiverSW(HostType):
         # Numero de sequencia esperado
         self.__seq = 1
 
+        # Quantidade total de bytes ja enviados
+        self.__senttotal = 0
+
+
         # Pacote para reconhecimentos
         self.__sndpkt = ACK(acknum=self.__seq)
 
@@ -369,6 +406,9 @@ class ReceiverSW(HostType):
 
     def getExpectedSequenceNumber(self):
         return self.__seq
+
+    def getSentTotal(self):
+        return self.__senttotal
 
     # Define a conexão por onde serão enviados os pacotes
     def setConnection(self, connection: SimpleConnection):
@@ -411,6 +451,9 @@ class ReceiverSW(HostType):
             
             # Entrega o pacote a conexão
             self.__connection.receive_packet(packet, self._srcid, self._destid)
+
+            # Adiciona o tamanho do pacote, em bytes, à contagem da quantidade total de bytes enviados
+            self.__senttotal += packet.getSize()
         except:
             return
 

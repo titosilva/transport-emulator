@@ -76,6 +76,11 @@ class EmulatorGBN(object):
 
         return (emitterseq, receiverseq)
 
+    def getEfficiency(self):
+        # Usando a formula para eficiencia, determina qual é a eficiencia do protocolo ate dado momento
+        eff = ((self.__emul.emitter.getSequenceNumber()-1)*21)/(self.__emul.emitter.getSentTotal() + self.__emul.receiver.getSentTotal())
+        return eff
+
     def printState(self):
         print('\npackets on connection' + '\t' + str(time.time()))
         for packet in self.__emul.connection.getPackets()[0]:
@@ -160,6 +165,11 @@ class EmulatorSW(object):
         receiverseq = self.__emul.receiver.getExpectedSequenceNumber()
 
         return (emitterseq, receiverseq)
+
+    def getEfficiency(self):
+        # Usando a formula para eficiencia, determina qual é a eficiencia do protocolo ate dado momento
+        eff = self.__emul.emitter.getAckedTotal()*21/self.__emul.emitter.getSentTotal()
+        return eff
 
 
     def printState(self):
