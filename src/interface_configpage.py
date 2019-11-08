@@ -74,12 +74,18 @@ vazao_label.place(relx=0.18 ,rely=0.325, relheight=0.05, relwidth=0.1)
 vazao_entry = tk.Entry(frame, font = 40)
 vazao_entry.place(relx=0.28,rely=0.325,relwidth=0.54, relheight=0.04)
 
+vazaounity = tk.Label(frame, text="Bps", bg='#fce5ac', font = 40)
+vazaounity.place(relx=0.82,rely=0.325, relheight=0.05, relwidth=0.1)
+
 #Distancia
 distancia_label = tk.Label(frame, text = "Distance: ", bg='#fce5ac', font = 40)
 distancia_label.place(relx=0.187,rely=0.395, relheight=0.05, relwidth=0.1)
 
 distancia_entry = tk.Entry(frame, font = 40)
 distancia_entry.place(relx=0.28,rely=0.395,relwidth=0.54, relheight=0.04)
+
+distanciaunity = tk.Label(frame, text="m", bg='#fce5ac', font = 40)
+distanciaunity.place(relx=0.82,rely=0.395, relheight=0.05, relwidth=0.1)
 
 #Probabilidade de erros
 probabilidade_de_erros_label = tk.Label(frame, text = "Error Probability:  ", bg='#fce5ac', font = 40)
@@ -88,12 +94,18 @@ probabilidade_de_erros_label.place(relx=0.111,rely=0.465, relheight=0.05, relwid
 probabilidade_de_erros_entry = tk.Entry(frame, font = 40)
 probabilidade_de_erros_entry.place(relx=0.28,rely=0.465,relwidth=0.54, relheight=0.04)
 
+probunity = tk.Label(frame, text="%", bg='#fce5ac', font = 40)
+probunity.place(relx=0.82,rely=0.465, relheight=0.05, relwidth=0.1)
+
 #Velocidade da transmissão
 velocidade_da_transmissao_label = tk.Label(frame, text = "Transmission Speed:", bg='#fce5ac', font = 40)
 velocidade_da_transmissao_label.place(relx=0.083,rely=0.535, relheight=0.05, relwidth=0.22)
 
 velocidade_da_transmissao_entry = tk.Entry(frame, font = 40)
 velocidade_da_transmissao_entry.place(relx=0.28,rely=0.535,relwidth=0.54, relheight=0.04)
+
+velunity = tk.Label(frame, text="m/s", bg='#fce5ac', font = 40)
+velunity.place(relx=0.82,rely=0.535, relheight=0.05, relwidth=0.1)
 
 #Tamanho da janela do emissor
 tamanho_da_janela_do_emissor_label = tk.Label(frame, text = "Emitter Window Size:", bg='#fce5ac', font = 40)
